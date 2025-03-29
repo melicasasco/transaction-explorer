@@ -3,7 +3,6 @@
 import { Controller, UseFormReturn } from "react-hook-form"
 import DatePicker from "react-datepicker"
 import { es } from "date-fns/locale"
-import { Calendar } from "lucide-react"
 
 import { Button } from "@/app/components/ui/button"
 import { FilterFormData } from "@/app/types/filterFormData"

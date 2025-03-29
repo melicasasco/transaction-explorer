@@ -5,7 +5,6 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { es } from "date-fns/locale";
 import useOnClickOutside from "@/app/hooks/onMousseEvent";
-import { start } from "repl";
 
 interface DateRangeModalProps {
   startDate: Date | undefined

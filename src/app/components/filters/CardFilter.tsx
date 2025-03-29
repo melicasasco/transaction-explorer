@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { CreditCard } from "lucide-react"
 import { UseFormReturn } from "react-hook-form"
 import { FilterFormData } from "@/app/types/filterFormData"
 import Image from "next/image"

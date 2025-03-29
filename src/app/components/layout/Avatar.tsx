@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { useResponsive, DESKTOP_BREAKPOINT } from "../../hooks/useResponsive";
 import { Button } from "@/app/components/ui/button";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +18,6 @@ import { Input } from "@/app/components/ui/input";
 
 export const Avatar = () => {
   const isDesktop = useResponsive({ breakpoint: DESKTOP_BREAKPOINT });
-  const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
 
@@ -68,7 +66,7 @@ export const Avatar = () => {
                 value="Meli"
                 className="col-span-3"
                 onChange={(e) => {
-                  console.log("sarasa");
+                  console.log(e.target.value);
                 }}
               />
             </div>
@@ -81,7 +79,7 @@ export const Avatar = () => {
                 value="Casasco"
                 className="col-span-3"
                 onChange={(e) => {
-                  console.log("sarasa");
+                  console.log(e.target.value);
                 }}
               />
             </div>

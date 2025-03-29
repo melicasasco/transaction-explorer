@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Range } from "react-range";
 import { UseFormReturn } from "react-hook-form";
-import { DollarSign } from "lucide-react";
 import { FilterFormData } from "@/app/types/filterFormData";
 import Image from "next/image";
 

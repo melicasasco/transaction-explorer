@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ApiData } from "../../types/transaction";
 import { FilterFormData } from "../../types/filterFormData";
 import Tabs from "../tabs/Tabs";
-import { useRouter, useSearchParams } from "next/navigation";
+import {  useSearchParams } from "next/navigation";
 import { AppLayout } from "../layout/Layout";
 import Image from "next/image";
 import { useFormattedNumber } from "../../hooks/useFormattedNumber";

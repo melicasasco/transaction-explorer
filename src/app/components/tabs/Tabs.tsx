@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 interface TabsProps {
   activeTab: string;
@@ -9,7 +9,6 @@ interface TabsProps {
 
 export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
