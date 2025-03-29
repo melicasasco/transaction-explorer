@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Transaction Explorer Challenge
+---
 
-## Getting Started
+## About
 
-First, run the development server:
+SPA de pagos recibidos por ventas realizadas.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Functionalities
+
+- Sidebar: menú lateral con opciones para navegar por la app (Inicio, Métricas).
+- Dashboard: pantalla principal con información sobre los pagos recibidos teniendo 3 tipos de vista (Diario, Semanal, Mensual) y además con filtros para poder obtener los datos por fecha, método de pago, método de cobro, rango de monto y cuotas.
+- Métricas: pantalla con métricas de pagos recibidos. Actualmente solo muestra el método de pago y el monto total por tarjeta permitiendo filtrar por mes.
+
+
+---
+
+### Screenshot
+
+![Home](/print-home.png)
+
+### Technologies
+
+---
+
+Tecnologías usadas en el proyecto:
+
+- [React](https://es.reactjs.org/): Version "^19.0.0"
+- [Next.js](https://nextjs.org/): Version "15.2.4"
+- [Recharts](https://recharts.org/en-US/): Version "^2.15.1"
+- [React Hook Form](https://react-hook-form.com/): Version "^7.54.2"
+- [Tailwind CSS](https://tailwindcss.com/): Version "^4"
+- [Jest](https://jestjs.io/): Version "^29.7.0"
+- [TypeScript](https://www.typescriptlang.org/): Version "^5"
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/): Version "^14.2.1"
+- [React Range](https://react-range.netlify.app/): Version "^1.10.0"
+
+### Instalation
+
+```
+$ git clone
+$ yarn install 
+$ yarn dev
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Authors
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> Melanie Casasco
+> www.linkedin.com/in/melanie-casasco/ 
