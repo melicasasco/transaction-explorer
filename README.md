@@ -37,7 +37,7 @@ Tecnologías usadas en el proyecto:
 ### Instalation
 
 ```
-$ git clone
+$ git clone https://github.com/melicasasco/transaction-explorer.git
 $ yarn install 
 $ yarn dev
 
