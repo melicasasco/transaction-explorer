@@ -9,7 +9,6 @@ interface TransactionHistoryProps {
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions }) => {
-  // console.log(transactions.length,'aaaa');
   if (!transactions || transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -29,10 +28,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
     );
   }
 
+  //  orden por fecha
+  const sortedTransactions = transactions.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
     <div className="space-y-4 md:w-2xl max-h-96 w-full overflow-y-auto mx-auto">
-      {!transactions ? "No hay transacciones" : transactions.map((tx) => (
-        <TransactionItem key={tx.id} tx={tx}  />
+      {sortedTransactions.map((tx) => (
+        <TransactionItem key={tx.id} tx={tx} />
       ))}
     </div>
   );
