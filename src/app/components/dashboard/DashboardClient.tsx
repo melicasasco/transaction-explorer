@@ -95,7 +95,7 @@ export default function DashboardClient({ data }: DashboardClientProps) {
    return (
     <>
       <AppLayout>
-        <div className="p-6 flex-1 mx-auto max-3-xl w-full flex flex-col text-center justify-center mt-18">
+        <div className="p-3 md:p-6 flex-1 mx-auto max-3-xl w-full flex flex-col text-center justify-center mt-18">
           <div className="flex justify-between items-center mb-8 ">
             <div className="flex-1">
               <h1 className="text-2xl font-medium text-gray-700">Tus cobros</h1>
