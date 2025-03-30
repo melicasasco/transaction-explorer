@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form"
 import Image from "next/image"
 import { Button } from "@/app/components/ui/button"
-import { Transaction } from "../../types/transaction"
 import { DateFilter } from "./DateFilter"
 import { CardFilter } from "./CardFilter"
 import { InstallmentsFilter } from "./InstallmentsFilter"
@@ -11,30 +10,35 @@ import { AmountFilter } from "./AmountFilter"
 import { MethodsFilter } from "./MethodsFilter"
 import { useRouter } from "next/navigation"
 import useDateFormatter from "@/app/hooks/useDateFormatter"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { FilterFormData } from "@/app/types/filterFormData"
 import useOnClickOutside from "@/app/hooks/onMousseEvent"
+import { useDataContext } from "@/app/context/DataFilterContext"
+import { Loader } from "lucide-react"
+import { IsActiveState } from "@/app/types/toggleActivation";
+
 
 interface FilterSidebarProps {
   onSetShowFilters: (showFilters: boolean) => void
-  data: Transaction[]
-  startDate: Date | undefined
-  endDate: Date | undefined
-  onChange: (dates: [Date | null, Date | null]) => void
-  onClear?: () => void
+  // startDate: Date | undefined
+  // endDate: Date | undefined
+  // onChange: (dates: [Date | null, Date | null]) => void
+  // onClear?: () => void
 }
 
 export default function FilterSidebar({
   onSetShowFilters,
-  data,
-  startDate,
-  endDate,
-  onChange,
-  onClear = () => {},
+  // startDate,
+  // endDate,
+  // onChange,
+  // onClear = () => {},
 }: FilterSidebarProps) {
   const { formatDate } = useDateFormatter()
   const sidebarRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(sidebarRef, () => onSetShowFilters(false));
+
+  const [isActive, setIsActive] = useState<IsActiveState>({ cards: false, installments: false, methods: false, amount: false, calendar: false });
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   const filterValues = useForm<FilterFormData>({
     defaultValues: {
@@ -48,47 +52,51 @@ export default function FilterSidebar({
     },
   })
 
+  console.log(filterValues,'filterValues');
+
   const { watch, setValue, handleSubmit, reset } = filterValues
-
-
   const router = useRouter();
-  // fc p alternar valores en arrays (cards, installments, methods)
-  const toggleValue = (
-    field: "cards" | "installments" | "methods",
-    value: string
-  ) => {
-    const current = watch(field) as string[]
-    if (current.includes(value)) {
-      setValue(field, current.filter((v) => v !== value))
-    } else {
-      setValue(field, [...current, value])
-    }
+
+// Función para alternar valores 
+const toggleValue = (
+  field: "cards" | "installments" | "methods" ,
+  value: string
+) => {
+  const current = watch(field) as string[];
+  console.log(current,'current');
+  if (current.includes(value)) {
+    setValue(field, current.filter((v) => v !== value));
+  } else {
+    setValue(field, [...current, value]);
   }
+};
 
-  // options unicas extraidas de la data
-  const uniqueCards = [...new Set(data.map((tx) => tx.card))]
-  const uniqueInstallments = [...new Set(data.map((tx) => String(tx.installments))),]
+  // Obtener la data desde nuestro contexto
+  const { data } = useDataContext();
+  
+  if (!data) {
+    return <div><Loader /></div>;
+  }
+  
+  // uso las transacciones del objeto data
+  const transactions = data.transactions;
 
+  // Extraer opciones únicas a partir de las transacciones
+  const uniqueCards = [...new Set(transactions.map((tx) => tx.card))]
+  const uniqueInstallments = [...new Set(transactions.map((tx) => String(tx.installments)))]
   const uniquePaymentMethods = [
-    ...new Set(data.map(tx => tx.paymentMethod).filter((m): m is string => Boolean(m)))
+    ...new Set(transactions.map(tx => tx.paymentMethod).filter((m): m is string => Boolean(m)))
   ];
 
   const onSubmit = (formData: FilterFormData) => {
-    // Actualiza la URL con los filtros seleccionados
     const queryParams = new URLSearchParams();
-    
-    // Obtener startDate y endDate del array
-    const dateRange = formData.startDate; // Asumiendo que formData.startDate es el array
-    // console.log(dateRange,'daterange');
-    const startDateValue = Array.isArray(dateRange) && dateRange[0] ? new Date(dateRange[0].setHours(0, 0, 0, 0)) : null; // Establecer la primera hora del día
-    const endDateValue = Array.isArray(dateRange) && dateRange[1] ? new Date(dateRange[1].setHours(23, 59, 59, 999)) : null; // Establecer la última hora del día
 
-    // Formatear las fechas antes de agregarlas a la URL tipo AAAA-MM-DD
-    const formattedStartDate = formatDate(startDateValue);
-    const formattedEndDate = formatDate(endDateValue);
+    // Obtener startDate y endDate del array
+    const formattedStartDate = formatDate(formData.startDate);
+    const formattedEndDate = formatDate(formData.endDate);
 
     // Calcular el total de las cantidades filtradas
-    const totalAmount = data
+    const totalAmount = transactions
       .filter(tx => 
         (formData.cards.length === 0 || formData.cards.includes(tx.card)) &&
         (formData.installments.length === 0 || formData.installments.includes(String(tx.installments))) &&
@@ -96,7 +104,6 @@ export default function FilterSidebar({
       )
       .reduce((sum, tx) => sum + tx.amount, 0);
 
-    // Redondear a 2 decimales antes de agregarlo a la URL
     queryParams.append("totalAmount", totalAmount.toFixed(2));
 
     if (formattedStartDate) {
@@ -121,7 +128,6 @@ export default function FilterSidebar({
   
     router.push(`/dashboard?${queryParams.toString()}`); 
   };
-  
 
   const clearUrlFilters = () => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -142,18 +148,21 @@ export default function FilterSidebar({
     clearUrlFilters()
     setValue("cards", []);
     setValue("installments", []);
+    setValue("startDate", null);
+    setValue("endDate", null);
     setValue("methods", []);
     setValue("amountMax", 0);
     setValue("amountMin", 0)
-    onClear()
+    setResetTrigger(prev => prev + 1);
+    setIsActive({ cards: false, installments: false, methods: false, amount: false, calendar: false });
   }
 
-  const highestAmountData = Math.round(data.reduce((max, tx) => Math.max(max, tx.amount), 0))
-  const lowestAmountData = Math.round(data.reduce((min, tx) => Math.min(min, tx.amount), 0))
+  const highestAmountData = Math.round(transactions.reduce((max, tx) => Math.max(max, tx.amount), 0))
+  const lowestAmountData = Math.round(transactions.reduce((min, tx) => Math.min(min, tx.amount), 0))
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div ref={sidebarRef} className="p-4 h-screen text-black w-full md:w-[520px] flex flex-col relative ">
+      <div ref={sidebarRef} className="p-4 min-h-screen text-black w-[340px] md:w-[520px] flex flex-col relative ">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             <button type="button" onClick={() => onSetShowFilters(false)}>
@@ -174,44 +183,51 @@ export default function FilterSidebar({
           >
             Limpiar
           </Button>
-         
         </div>
 
         <div className="pb-6 font-semibold text-gray-700">Todos los filtros</div>
 
-        {/* aqui los filter components*/}
+        {/* Componentes de filtros ---> */}
         <div className="space-y-6 overflow-y-auto pb-32">
           <DateFilter
             form={filterValues}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={onChange}
-            onClear={onClear}
+            onSetIsActive={setIsActive}
+            isActive={isActive}
           />
           <CardFilter
             form={filterValues}
             uniqueCards={uniqueCards}
             toggleValue={toggleValue}
+            onSetIsActive={setIsActive}
+            isActive={isActive}
           />
           <InstallmentsFilter
             form={filterValues}
             uniqueInstallments={uniqueInstallments}
             toggleValue={toggleValue}
+            onSetIsActive={setIsActive}
+            isActive={isActive}
           />
           <AmountFilter 
             form={filterValues}
             highestAmountData={highestAmountData}
             lowestAmountData={lowestAmountData}
+            resetTrigger={resetTrigger}
+            onSetIsActive={setIsActive}
+            isActive={isActive}
           />
           <MethodsFilter
             form={filterValues}
             uniquePaymentMethods={uniquePaymentMethods}
             toggleValue={toggleValue}
+            onSetIsActive={setIsActive}
+            isActive={isActive}
+
           />
         </div>
 
-        {/* button */}
-        <div className="absolute bottom-0 left-0 w-full p-4 bg-white">
+        {/* submit */}
+        <div className="fixed bottom-0 left-0 w-full p-4 bg-white">
           <Button type="submit" className="w-full py-3 bg-[#022A9A] rounded-full cursor-pointer">
             Aplicar filtros
           </Button>

@@ -1,98 +1,48 @@
 "use client";
 
 import TransactionHistory from "../transactions/Transactions";
-import { useEffect, useState } from "react";
-import { ApiData } from "../../types/transaction";
-import { FilterFormData } from "../../types/filterFormData";
-import Tabs from "../tabs/Tabs";
-import {  useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppLayout } from "../layout/Layout";
 import Image from "next/image";
 import { useFormattedNumber } from "../../hooks/useFormattedNumber";
 import "react-datepicker/dist/react-datepicker.css";
 import DateRangeModal from "./DateRangeModal";
-import { useDownloadCsv } from "../../hooks/useDowloadCvs";
 import FilterSidebar from "../filters/FilterSidebar";
-import useFilteredTransactions from "../../hooks/useFilteredTransactionByTab";
-// import { SkeletonItems } from "../Skeleton";
 import Link from "next/link";
-import { applyUrlFilters } from "../../hooks/applyFilters";
 import { Button } from "@/app/components/ui/button";
+import Tabs from "../tabs/Tabs";
+import { Loader2 } from "lucide-react";
+import useFinalFilteredTransactions from "@/app/hooks/useUpdateFinalFilteredTransactions";
+import { DownloadData } from "@/app/types/filterFormData";
+import { useForm } from "react-hook-form";
 
-interface DashboardClientProps {
-  data: ApiData;
-
-}
-
-export default function DashboardClient({ data }: DashboardClientProps) {
+export default function DashboardClient() {
   const searchParams = useSearchParams();
+
+  const { finalFiltered, totalAmount } = useFinalFilteredTransactions(searchParams);
+
+  const downloadValues = useForm<DownloadData<"startDate" | "endDate">>({
+    defaultValues: {
+      startDate: null,
+      endDate: null,
+    },
+  })
+
   const initialTab = searchParams.get("tab") || "semanal";
 
-  const [filters, setFilters] = useState<FilterFormData | null>(null);
   const [showSidebarFilters, setShowSidebarFilters] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  // const totalAmountFromData = filteredTransactionsByTabs.reduce((sum, tx) => sum + tx.amount, 0);
+  // const totalAmountParam = searchParams.get("totalAmount");
+  // const totalAmount = totalAmountParam !== null ? totalAmountParam : totalAmountFromData;
+  const formattedTotalAmount = useFormattedNumber(Number(totalAmount)); 
 
-  const filteredTransactionsByTabs = useFilteredTransactions(data, activeTab);
+  if (!finalFiltered) return <div><Loader2 /></div>;
 
-  const { handleDownload } = useDownloadCsv({
-    transactions: data?.transactions,
-    startDate,
-    endDate,
-  });
-
-  const handleClearDates = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
-  };
-
-  // console.log(filteredTransactionsByTabs);
-  const finalFilteredTransactions = applyUrlFilters(filteredTransactionsByTabs, filters);
-
-  const startDateParam = searchParams.get("startDate");
-  const endDateParam = searchParams.get("endDate");
-  const cardsParam = searchParams.getAll("cards");
-  const installmentsParam = searchParams.getAll("installments");
-  const amountMinParam = searchParams.get("amountMin");
-  const amountMaxParam = searchParams.get("amountMax");
-  const methodsParam = searchParams.getAll("methods");
-  
-
-  useEffect(() => {
-    const newFilters = {
-      startDate: startDateParam ? new Date(new Date(startDateParam).getTime() + (3 * 60 * 60 * 1000)) : null,
-      endDate: endDateParam ? (() => {
-        const date = new Date(new Date(endDateParam).getTime() + (3 * 60 * 60 * 1000));
-        date.setHours(23, 59, 0, 0); // Establece la hora a 23:59:00
-        return date;
-      })() : null,
-      cards: cardsParam.length > 0 ? cardsParam : [],
-      installments: installmentsParam.length > 0 ? installmentsParam : [],
-      amountMin: amountMinParam ? Number(amountMinParam) : 0,
-      amountMax: amountMaxParam ? Number(amountMaxParam) : 0,
-      methods: methodsParam.length > 0 ? methodsParam : [],
-    };
-
-    setFilters((prev) => ({
-      ...prev,
-      ...newFilters,
-    }));
-  }, [searchParams]);
-
-
-    const totalAmountFromData = filteredTransactionsByTabs.reduce(
-    (sum, tx) => sum + tx.amount,
-    0
-   );
-
-   const totalAmountParam = searchParams.get("totalAmount");
-   const totalAmount = totalAmountParam !== null ? totalAmountParam : totalAmountFromData;
-
-
-   return (
+  return (
     <>
       <AppLayout>
         <div className="p-3 md:p-6 flex-1 mx-auto max-3-xl w-full flex flex-col text-center justify-center mt-18">
@@ -103,26 +53,13 @@ export default function DashboardClient({ data }: DashboardClientProps) {
             </div>
           </div>
 
-          {/* <button
-            type="button"
-            className="text-red-700 text-sm"
-            onClick={clearUrlFilters}
-          >
-            Limpiar Filtros de URL
-          </button> */}
-
           <div className="mb-8 flex flex-col justify-center text-center mx-auto max-3-xl w-full">
             <h2 className="text-4xl font-medium text-gray-800">
-              + ${useFormattedNumber(Number(totalAmount))}
+              + ${formattedTotalAmount}
               <span className="text-gray-500 text-2xl"></span>
             </h2>
             <button className="mt-4 flex justify-center items-center text-blue-700 gap-2">
-              <Image
-                src="/analyze.svg"
-                alt="Category Icon"
-                width={32}
-                height={32}
-              />
+              <Image src="/analyze.svg" alt="Category Icon" width={32} height={32} />
               <span className="text-[#022A9A]">
                 <Link href="/metrics">Ver métricas</Link>
               </span>
@@ -130,37 +67,36 @@ export default function DashboardClient({ data }: DashboardClientProps) {
           </div>
 
           <div className="flex justify-around items-center align-middle mb-4 w-full">
-            <h3 className="text-gray-700 w-24 md:whitespace-nowrap md:ml-4 md:text-md text-sm text-left">Historial de transacciones</h3>
+            <h3 className="text-gray-700 w-24 md:whitespace-nowrap md:ml-4 md:text-md text-sm text-left">
+              Historial de transacciones
+            </h3>
             <div className="flex ml-0 gap-2 ">
-              <Button variant={"ghost"}
+              <Button
+                variant={"ghost"}
                 className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"
                 onClick={() => setShowDatePicker(true)}
               >
                 <Image src="/download.svg" alt="Download" width={32} height={32} />
               </Button>
 
-              <Button variant={"ghost"}
+              <Button
+                variant={"ghost"}
                 className="p-2 mr-2 cursor-pointer "
                 onClick={() => {
                   setShowSidebarFilters(true);
                 }}
               >
-                <Image
-                  src="/filters-button.svg"
-                  alt="Category Icon"
-                  width={52}
-                  height={52}
-                />
+                <Image src="/filters-button.svg" alt="Category Icon" width={52} height={52} />
               </Button>
             </div>
           </div>
 
-          {finalFilteredTransactions.length === 0 ? (
+          {finalFiltered.length === 0 ? (
             <div className="flex justify-center mx-auto">
               <p className="mt-2 text-sm">No hay transacciones.</p>
             </div>
           ) : (
-            <TransactionHistory transactions={finalFilteredTransactions} />
+            <TransactionHistory transactions={finalFiltered} />
           )}
         </div>
 
@@ -169,17 +105,9 @@ export default function DashboardClient({ data }: DashboardClientProps) {
             isOpen={showDatePicker}
             onClose={() => {
               setShowDatePicker(false);
-              setStartDate(undefined);
-              setEndDate(undefined);
             }}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={([start, end]) => {
-              setStartDate(start || undefined);
-              setEndDate(end || undefined);
-            }}
+            downloadValues={downloadValues}
             onDownload={() => {
-              handleDownload();
               setShowDatePicker(false);
             }}
           />
@@ -193,15 +121,7 @@ export default function DashboardClient({ data }: DashboardClientProps) {
           >
             <FilterSidebar
               onSetShowFilters={setShowSidebarFilters}
-              data={filteredTransactionsByTabs}
-              startDate={startDate}
-              endDate={endDate}
-              onChange={([start, end]) => {
-                setStartDate(start || undefined);
-                setEndDate(end || undefined);
-              }}
-              onClear={handleClearDates}
-            />
+             />
           </div>
         )}
       </AppLayout>

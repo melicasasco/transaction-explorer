@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { useResponsive, DESKTOP_BREAKPOINT } from "@/app/hooks/useResponsive";
@@ -7,7 +7,14 @@ import Image from "next/image";
 import { Menu } from "lucide-react";
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
+  const [mounted, setMounted] = useState(false);
   const isDesktop = useResponsive({ breakpoint: DESKTOP_BREAKPOINT });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <>

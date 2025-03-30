@@ -1,18 +1,19 @@
 "use client"
 
-import { useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { FilterFormData } from "@/app/types/filterFormData"
 import Image from "next/image"
+import { IsActiveState } from "@/app/types/toggleActivation";
 
 interface CardFilterProps {
   form: UseFormReturn<FilterFormData>
   uniqueCards: string[]
+  isActive: IsActiveState
+  onSetIsActive: React.Dispatch<React.SetStateAction<IsActiveState>>;
   toggleValue: (field: "cards", value: string) => void
 }
 
-export function CardFilter({ form, uniqueCards, toggleValue }: CardFilterProps) {
-  const [isActive, setIsActive] = useState(false)
+export function CardFilter({ form, uniqueCards, toggleValue, onSetIsActive, isActive }: CardFilterProps) {
   const watchCards = form.watch("cards")
 
   return (
@@ -25,8 +26,12 @@ export function CardFilter({ form, uniqueCards, toggleValue }: CardFilterProps) 
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
+            checked={isActive["cards"]} 
             className="sr-only peer"
-            onChange={() => setIsActive(!isActive)}
+            onChange={() => onSetIsActive(prevSate => ({
+              ...prevSate,
+              cards: !prevSate.cards,
+            }))}
           />
           <div className="w-11 h-6 bg-[#606882] rounded-full peer peer-checked:after:translate-x-full 
             peer-checked:after:border-white after:content-[''] after:absolute 
@@ -36,7 +41,7 @@ export function CardFilter({ form, uniqueCards, toggleValue }: CardFilterProps) 
         </label>
       </div>
 
-      {isActive && (
+      {isActive["cards"] && (
         <div className="flex flex-wrap gap-2 mt-4">
           {uniqueCards.map((card) => {
             const isSelected = watchCards.includes(card)

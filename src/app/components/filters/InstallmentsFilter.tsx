@@ -2,21 +2,24 @@
 
 import { FilterFormData } from "@/app/types/filterFormData"
 import { UseFormReturn } from "react-hook-form"
-import { useState } from "react"
 import Image from "next/image"
+import { IsActiveState } from "@/app/types/toggleActivation";
 
 interface InstallmentsFilterProps {
   form: UseFormReturn<FilterFormData>
   uniqueInstallments: string[]
+  isActive: IsActiveState
+  onSetIsActive: React.Dispatch<React.SetStateAction<IsActiveState>>;
   toggleValue: (field: "installments", value: string) => void
 }
 
 export function InstallmentsFilter({
   form,
   uniqueInstallments,
+  isActive,
+  onSetIsActive,
   toggleValue,
 }: InstallmentsFilterProps) {
-  const [isActive, setIsActive] = useState(false)
   const watchInstallments = form.watch("installments")
 
   return (
@@ -29,8 +32,13 @@ export function InstallmentsFilter({
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
+            checked={isActive["installments"]}
             className="sr-only peer"
-            onChange={() => setIsActive(!isActive)}
+            onChange={() => onSetIsActive(prevSate => ({
+              ...prevSate,
+              installments: !prevSate.installments,
+            }))}
+          
           />
           <div className="w-11 h-6 bg-[#606882] rounded-full peer peer-checked:after:translate-x-full 
             peer-checked:after:border-white after:content-[''] after:absolute 
@@ -40,7 +48,7 @@ export function InstallmentsFilter({
         </label>
       </div>
 
-      {isActive && (
+      {isActive["installments"] && (
         <div className="flex flex-wrap gap-2 mt-4">
           {uniqueInstallments.map((inst) => {
             const isSelected = watchInstallments.includes(inst)
@@ -51,7 +59,7 @@ export function InstallmentsFilter({
                 onClick={() => toggleValue("installments", inst)}
                 className={`px-3 py-1 rounded-full border ${
                   isSelected
-                    ? "bg-blue-50 border- text--[#022A9A]"
+                    ? "bg-blue-50 border-[#022A9A] text--[#022A9A]"
                     : "border-gray-300"
                 }`}
               >
