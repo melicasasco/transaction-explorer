@@ -10,11 +10,10 @@ interface DataFilterContextProps {
   filters: FilterFormData;
   setData: (data: ApiData) => void;
   setFilters: React.Dispatch<React.SetStateAction<FilterFormData>>;
-  clearFilters: () => void;
   isLoading: boolean;
 }
 
-const DataFilterContext = createContext<DataFilterContextProps | undefined>(undefined);
+export const DataFilterContext = createContext<DataFilterContextProps | undefined>(undefined);
 
 export const DataFilterProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<ApiData | null>(null);
@@ -31,19 +30,6 @@ export const DataFilterProvider = ({ children }: { children: ReactNode }) => {
     tabs: "semanal",
   });
 
-  const clearFilters = () => {
-    setFilters({
-      startDate: null,
-      endDate: null,
-      cards: [],
-      installments: [],
-      amountMin: 0,
-      amountMax: 0,
-      methods: [],
-      tabs: "semanal",
-    });
-  };
-
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
@@ -58,7 +44,7 @@ export const DataFilterProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <DataFilterContext.Provider
-      value={{ data, filters, setData, setFilters, clearFilters, isLoading }}
+      value={{ data, filters, setData, setFilters, isLoading }}
     >
       {children}
     </DataFilterContext.Provider>

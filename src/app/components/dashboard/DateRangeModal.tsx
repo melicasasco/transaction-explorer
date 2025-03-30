@@ -14,7 +14,7 @@ interface DateRangeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDownload: () => void;
-  downloadValues: UseFormReturn<DownloadData<"startDate" | "endDate">>;
+  downloadValues: UseFormReturn<DownloadData>;
 }
 
 const DateRangeModal: React.FC<DateRangeModalProps> = ({
@@ -42,7 +42,7 @@ const DateRangeModal: React.FC<DateRangeModalProps> = ({
   });
 
 
-  const onSubmit = (formData: DownloadData<"startDate" | "endDate">) => {
+  const onSubmit = (formData: DownloadData) => {
     handleDownload();
     console.log(formData, "formData");
   };

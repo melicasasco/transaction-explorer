@@ -9,7 +9,4 @@ export interface FilterFormData {
     tabs: string | null
   }
 
-export interface DownloadData<pick extends keyof FilterFormData> {
-    startDate: FilterFormData[pick] | null
-    endDate: FilterFormData[pick] | null
-  }
+  export type DownloadData = Pick<FilterFormData, "startDate" | "endDate">;

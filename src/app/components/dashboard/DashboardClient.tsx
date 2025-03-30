@@ -22,7 +22,7 @@ export default function DashboardClient() {
 
   const { finalFiltered, totalAmount } = useFinalFilteredTransactions(searchParams);
 
-  const downloadValues = useForm<DownloadData<"startDate" | "endDate">>({
+  const downloadValues = useForm<DownloadData>({
     defaultValues: {
       startDate: null,
       endDate: null,
