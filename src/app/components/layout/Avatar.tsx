@@ -38,7 +38,7 @@ export const Avatar = () => {
               className="w-12 h-12 rounded-full cursor-pointer"
             />}
           </Button>
-          <span className="font-bold text-[#3A3A3A] cursor-pointer no-underline">
+          <span className="font-bold text-[#3A3A3A] no-underline">
             meli
           </span>
         </div>

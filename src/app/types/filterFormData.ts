@@ -6,5 +6,10 @@ export interface FilterFormData {
     amountMin: number 
     amountMax: number
     methods: string[]
+    tabs: string | null
+  }
 
+export interface DownloadData<pick extends keyof FilterFormData> {
+    startDate: FilterFormData[pick] | null
+    endDate: FilterFormData[pick] | null
   }

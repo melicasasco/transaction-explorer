@@ -2,12 +2,14 @@
 
 import { FilterFormData } from "@/app/types/filterFormData"
 import { UseFormReturn } from "react-hook-form"
-import { useState } from "react"
 import Image from "next/image"
+import { IsActiveState } from "@/app/types/toggleActivation";
 
 interface MethodsFilterProps {
   form: UseFormReturn<FilterFormData>
   uniquePaymentMethods: string[]
+  isActive: IsActiveState
+  onSetIsActive: React.Dispatch<React.SetStateAction<IsActiveState>>;
   toggleValue: (field: "methods", value: string) => void
 }
 
@@ -15,8 +17,9 @@ export function MethodsFilter({
   form,
   uniquePaymentMethods,
   toggleValue,
+  onSetIsActive,
+  isActive,
 }: MethodsFilterProps) {
-  const [isActive, setIsActive] = useState(false)
   const watchMethods = form.watch("methods")
 
   return (
@@ -30,7 +33,11 @@ export function MethodsFilter({
           <input
             type="checkbox"
             className="sr-only peer"
-            onChange={() => setIsActive(!isActive)}
+            checked={isActive["methods"]}
+            onChange={() => onSetIsActive(prevSate => ({
+              ...prevSate,
+              methods: !prevSate.methods,
+            }))}
           />
           <div className="w-11 h-6 bg-[#606882] rounded-full peer peer-checked:after:translate-x-full 
             peer-checked:after:border-white after:content-[''] after:absolute 
@@ -40,7 +47,7 @@ export function MethodsFilter({
         </label>
       </div>
 
-      {isActive && (
+      {isActive["methods"] && (
         <div className="flex flex-wrap gap-2 mt-4">
           {uniquePaymentMethods.map((method) => {
             const isSelected = watchMethods.includes(method)

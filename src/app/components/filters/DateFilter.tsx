@@ -3,31 +3,38 @@
 import { Controller, UseFormReturn } from "react-hook-form"
 import DatePicker from "react-datepicker"
 import { es } from "date-fns/locale"
-
 import { Button } from "@/app/components/ui/button"
 import { FilterFormData } from "@/app/types/filterFormData"
-import { useState } from "react"
 import Image from "next/image"
+import { IsActiveState } from "@/app/types/toggleActivation"
 
 interface DateFilterProps {
   form: UseFormReturn<FilterFormData>
-  startDate: Date | undefined
-  endDate: Date | undefined
-  onChange: (dates: [Date | null, Date | null]) => void
-  onClear?: () => void
+  isActive: IsActiveState
+  onSetIsActive: React.Dispatch<React.SetStateAction<IsActiveState>>;
 }
 
 export function DateFilter({
   form,
-  startDate,
-  endDate,
-  onChange,
-  onClear,
+  isActive,
+  onSetIsActive,
 }: DateFilterProps) {
-  const [isActive, setIsActive] = useState(false)
-  const { control } = form
-// console.log(startDate,'startDateeee');
-// console.log(endDate,'endDateeeee');
+
+  const { control, getValues, setValue } = form; 
+
+  const onChange = (dates: [Date | null, Date | null]) => {
+    if (dates) {
+      setValue('startDate', dates[0]); 
+      setValue('endDate', dates[1]);
+    }
+  };
+  // console.log(watch('startDate'), 'watch startDate');
+  // console.log(watch('endDate'), 'watch endDate');
+
+  const onClear = () => {
+    setValue('startDate', null);
+    setValue('endDate', null);
+  }
   return (
     <div className="space-y-6">
       {/* Encabezado de sección */}
@@ -39,8 +46,12 @@ export function DateFilter({
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
+            checked={isActive["calendar"]}
             className="sr-only peer"
-            onChange={() => setIsActive(!isActive)}
+            onChange={() => onSetIsActive(prevSate => ({
+              ...prevSate,
+              calendar: !prevSate.calendar,
+            }))}
           />
           <div className="w-11 h-6 bg-[#606882] rounded-full peer peer-checked:after:translate-x-full 
             peer-checked:after:border-white after:content-[''] after:absolute 
@@ -51,7 +62,7 @@ export function DateFilter({
       </div>
 
       {/* Contenido de la sección */}
-      {isActive && (
+      {isActive["calendar"] && (
         <div className="mt-4 bg-white w-[50%] p-4 mx-auto shadow-gray-100 rounded-sm">
           <p className="font-medium mb-2 text-center">Seleccionar rango de fechas</p>
           <div className="flex flex-col items-center justify-center rounded-lg p-4">
@@ -60,17 +71,16 @@ export function DateFilter({
                 name="startDate"
                 control={control}
                 render={({ field: { onChange: fieldOnChange } }) => {
-                  // console.log(startDate,': STARTDATE', endDate,': ENDATE')
                   return (
                     <DatePicker
                       locale={es}
-                      selected={startDate}
+                      selected={null}
                       onChange={(dates) => {
                         fieldOnChange(dates);
                         onChange(dates);
                       }}
-                      startDate={startDate}
-                      endDate={endDate}
+                      startDate={getValues('startDate')}
+                      endDate={getValues('endDate')}
                       selectsRange
                       inline
                       calendarStartDay={0}
