@@ -130,7 +130,7 @@ export default function DashboardClient({ data }: DashboardClientProps) {
           </div>
 
           <div className="flex justify-around items-center align-middle mb-4 w-full">
-            <h3 className="text-gray-700 md:ml-4">Historial de transacciones</h3>
+            <h3 className="text-gray-700 w-24 md:whitespace-nowrap md:ml-4 md:text-md text-sm text-left">Historial de transacciones</h3>
             <div className="flex ml-0 gap-2 ">
               <Button variant={"ghost"}
                 className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"

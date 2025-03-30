@@ -153,7 +153,7 @@ export default function FilterSidebar({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div ref={sidebarRef} className="p-4 h-screen text-black w-[520px] flex flex-col relative">
+      <div ref={sidebarRef} className="p-4 h-screen text-black w-full md:w-[520px] flex flex-col relative ">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             <button type="button" onClick={() => onSetShowFilters(false)}>
@@ -212,7 +212,7 @@ export default function FilterSidebar({
 
         {/* button */}
         <div className="absolute bottom-0 left-0 w-full p-4 bg-white">
-          <Button type="submit" className="w-full py-3 bg-[#022A9A] rounded-full">
+          <Button type="submit" className="w-full py-3 bg-[#022A9A] rounded-full cursor-pointer">
             Aplicar filtros
           </Button>
         </div>
