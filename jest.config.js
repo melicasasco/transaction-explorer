@@ -12,6 +12,9 @@ module.exports = {
     '^auth/(.*)$': '<rootDir>/src/auth/$1',
     '^pages/(.*)$': '<rootDir>/src/pages/$1',
     '^shared/(.*)$': '<rootDir>/src/shared/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/app/(.*)$': '<rootDir>/src/app/$1',
+    '^@/components/(.*)$': '<rootDir>/src/app/components/$1',
   },
   transform: {
     '^.+\\.[t|j]sx?$': 'babel-jest',

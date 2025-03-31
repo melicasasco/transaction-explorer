@@ -8,9 +8,9 @@ import { CardFilter } from "./CardFilter"
 import { InstallmentsFilter } from "./InstallmentsFilter"
 import { AmountFilter } from "./AmountFilter"
 import { MethodsFilter } from "./MethodsFilter"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import useDateFormatter from "@/app/hooks/useDateFormatter"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FilterFormData } from "@/app/types/filterFormData"
 import useOnClickOutside from "@/app/hooks/onMousseEvent"
 import { useDataContext } from "@/app/context/DataFilterContext"
@@ -40,22 +40,33 @@ export default function FilterSidebar({
   const [isActive, setIsActive] = useState<IsActiveState>({ cards: false, installments: false, methods: false, amount: false, calendar: false });
   const [resetTrigger, setResetTrigger] = useState(0);
 
+  const { data, filters } = useDataContext();
+  const searchParams = useSearchParams();
+
   const filterValues = useForm<FilterFormData>({
     defaultValues: {
-      startDate: null,
-      endDate: null,
-      cards: [],
-      installments: [],
-      amountMin: 0,
-      amountMax: 0,
-      methods: [],
+      startDate: filters.startDate || null,
+      endDate: filters.endDate || null,
+      cards: filters.cards || null,
+      installments: filters.installments || [],
+      amountMin: filters.amountMin || 0,
+      amountMax: filters.amountMax || 2000,
+      methods: filters.methods || [],
     },
   })
 
-  console.log(filterValues,'filterValues');
-
   const { watch, setValue, handleSubmit, reset } = filterValues
   const router = useRouter();
+
+  useEffect(() => {
+    setIsActive({
+      cards: filters.cards.length > 0,
+      installments: filters.installments.length > 0,
+      methods: filters.methods.length > 0,
+      amount: filters.amountMin > 0 || (filters.amountMax < 2000 && filters.amountMax !== 0),
+      calendar: !!(filters.startDate || filters.endDate),
+    });
+  }, [filters]);
 
 // Función para alternar valores 
 const toggleValue = (
@@ -71,8 +82,6 @@ const toggleValue = (
   }
 };
 
-  // Obtener la data desde nuestro contexto
-  const { data } = useDataContext();
   
   if (!data) {
     return <div><Loader /></div>;
@@ -81,30 +90,30 @@ const toggleValue = (
   // uso las transacciones del objeto data
   const transactions = data.transactions;
 
-  // Extraer opciones únicas a partir de las transacciones
+  // Extraer opciones únicas a partir de las transacciones --> esto en realidad se puede tomar de la api, en metadata.
   const uniqueCards = [...new Set(transactions.map((tx) => tx.card))]
   const uniqueInstallments = [...new Set(transactions.map((tx) => String(tx.installments)))]
   const uniquePaymentMethods = [
     ...new Set(transactions.map(tx => tx.paymentMethod).filter((m): m is string => Boolean(m)))
   ];
 
-  const onSubmit = (formData: FilterFormData) => {
-    const queryParams = new URLSearchParams();
+  // const highestAmountData = Math.round(transactions.reduce((max, tx) => Math.max(max, tx.amount), 0))
+  const highestAmountData = 2000
+  const lowestAmountData = 0
+  // const lowestAmountData = Math.round(transactions.reduce((min, tx) => Math.min(min, tx.amount), 0))
 
+  const onSubmit = (formData: FilterFormData) => {
+    
+    const currentTab = searchParams.get("tab");
+    const queryParams = new URLSearchParams();
+    if (currentTab) {
+      queryParams.append("tab", currentTab);
+    } else {
+      queryParams.append("tab", "semanal");
+    }
     // Obtener startDate y endDate del array
     const formattedStartDate = formatDate(formData.startDate);
     const formattedEndDate = formatDate(formData.endDate);
-
-    // Calcular el total de las cantidades filtradas
-    const totalAmount = transactions
-      .filter(tx => 
-        (formData.cards.length === 0 || formData.cards.includes(tx.card)) &&
-        (formData.installments.length === 0 || formData.installments.includes(String(tx.installments))) &&
-        (formData.methods.length === 0 || formData.methods.includes(tx.paymentMethod as string))
-      )
-      .reduce((sum, tx) => sum + tx.amount, 0);
-
-    queryParams.append("totalAmount", totalAmount.toFixed(2));
 
     if (formattedStartDate) {
       queryParams.append("startDate", formattedStartDate);
@@ -151,18 +160,16 @@ const toggleValue = (
     setValue("startDate", null);
     setValue("endDate", null);
     setValue("methods", []);
-    setValue("amountMax", 0);
-    setValue("amountMin", 0)
+    setValue("amountMax", highestAmountData);
+    setValue("amountMin", lowestAmountData)
     setResetTrigger(prev => prev + 1);
     setIsActive({ cards: false, installments: false, methods: false, amount: false, calendar: false });
   }
 
-  const highestAmountData = Math.round(transactions.reduce((max, tx) => Math.max(max, tx.amount), 0))
-  const lowestAmountData = Math.round(transactions.reduce((min, tx) => Math.min(min, tx.amount), 0))
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div ref={sidebarRef} className="p-4 min-h-screen text-black w-[340px] md:w-[520px] flex flex-col relative ">
+      <div ref={sidebarRef} className=" p-4 min-h-screen text-black w-[340px]  md:w-[520px] flex flex-col relative overflow-y-auto h-screen">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             <button type="button" onClick={() => onSetShowFilters(false)}>

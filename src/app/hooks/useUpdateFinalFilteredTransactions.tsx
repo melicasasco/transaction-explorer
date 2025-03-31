@@ -44,7 +44,7 @@ export default function useFinalFilteredTransactions(
       if (filters.amountMin > 0 && tx.amount < filters.amountMin) return false;
       if (filters.amountMax > 0 && tx.amount > filters.amountMax) return false;
 
-      if (startDateValue === null) {
+      if (startDateValue === null || startDateValue === undefined) {
         switch (filters.tabs) {
           case "diario": {
             const dayStart = startOfDay(now);
@@ -65,6 +65,7 @@ export default function useFinalFilteredTransactions(
       return true;
     });
   }, [data?.transactions, filters]);
+  // console.log(finalFiltered,'finalFiltereddddddd')
 
   const totalAmount = useMemo(() => {
     return (finalFiltered ?? []).reduce((sum, tx) => sum + tx.amount, 0);

@@ -25,7 +25,7 @@ export const DataFilterProvider = ({ children }: { children: ReactNode }) => {
     cards: [],
     installments: [],
     amountMin: 0,
-    amountMax: 0,
+    amountMax: 2000,
     methods: [],
     tabs: "semanal",
   });
